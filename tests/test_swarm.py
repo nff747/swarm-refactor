@@ -172,3 +172,26 @@ def test_zero():
     assert result.success is True
     assert result.iterations == 2
     assert "return 0.0" in result.final_code or "b == 0" in result.final_code
+
+
+@pytest.mark.asyncio
+async def test_sandbox_security_gate_rejection():
+    executor = SandboxExecutor(timeout_sec=5.0)
+
+    # Malicious subprocess attempt
+    malicious_code = "import subprocess\ndef exploit():\n    subprocess.run(['ls'])\n"
+    test_code = "from candidate import exploit\ndef test_exploit():\n    exploit()\n"
+
+    res = await executor.evaluate_patch("sec-1", malicious_code, test_code)
+    assert res.passed is False
+    assert res.exit_code == -3
+    assert "SecurityPolicyViolation" in res.error_summary
+    assert "subprocess" in res.stderr
+
+    # Prohibited eval attempt
+    eval_code = "def dangerous(x):\n    return eval(x)\n"
+    res2 = await executor.evaluate_patch("sec-2", eval_code, test_code)
+    assert res2.passed is False
+    assert res2.exit_code == -3
+    assert "eval()" in res2.stderr
+
