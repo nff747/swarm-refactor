@@ -77,49 +77,68 @@ class LLMClient:
 
     def _mock_generate(self, prompt: str) -> str:
         """
-        Deterministic mock generator for offline CI/testing and local verification.
-        Simulates the iterative debugging process:
-        - Attempt 1: Produces refactored code with an edge-case bug.
-        - Attempt 2: Analyzes the critic guidance in the prompt and resolves the bug.
+        Dynamic diagnostic mock generator for offline CI/testing and local verification.
+        Analyzes the source code and critic failure diagnostics to synthesize targeted patches.
         """
-        is_reflection = any(keyword in prompt for keyword in ["Execution failed with", "Critic Diagnosis", "CRITIC FEEDBACK", "prior_diagnosis"])
+        is_reflection = any(keyword in prompt for keyword in [
+            "Execution failed with", "Critic Diagnosis", "CRITIC FEEDBACK", "prior_diagnosis"
+        ])
 
-        if "divide" in prompt:
-            if is_reflection:
-                return (
-                    "def divide(a: float, b: float) -> float:\n"
-                    "    \"\"\"Divide two numbers safely.\"\"\"\n"
-                    "    if b == 0:\n"
-                    "        return 0.0\n"
-                    "    return a / b\n"
-                )
-            else:
-                return (
-                    "def divide(a: float, b: float) -> float:\n"
-                    "    return a / b\n"
-                )
+        # Extract source code block if provided in prompt
+        code_match = re.search(r"### SOURCE FILE.*?:```python\s*(.*?)\s*```", prompt, re.DOTALL)
+        source_code = code_match.group(1).strip() if code_match else ""
 
-        if is_reflection:
-            # Reflection step: Produce fully corrected, optimized code
-            return (
-                "def calculate_stats(numbers: list[float]) -> dict[str, float]:\n"
-                "    \"\"\"Calculates statistical summary with zero-division safety.\"\"\"\n"
-                "    if not numbers:\n"
-                "        return {\"mean\": 0.0, \"variance\": 0.0, \"count\": 0}\n"
-                "    \n"
-                "    n = len(numbers)\n"
-                "    mean = sum(numbers) / n\n"
-                "    variance = sum((x - mean) ** 2 for x in numbers) / n\n"
-                "    return {\"mean\": mean, \"variance\": variance, \"count\": n}\n"
-            )
-        else:
-            # Initial attempt: Has an unhandled zero-length edge case (triggers ZeroDivisionError in tests)
-            return (
-                "def calculate_stats(numbers: list[float]) -> dict[str, float]:\n"
-                "    \"\"\"Calculates statistical summary with potential zero-division.\"\"\"\n"
-                "    n = len(numbers)\n"
-                "    # Flaw: misses empty list guard\n"
-                "    mean = sum(numbers) / n\n"
-                "    variance = sum((x - mean) ** 2 for x in numbers) / n\n"
-                "    return {\"mean\": mean, \"variance\": variance, \"count\": n}\n"
-            )
+        if not source_code:
+            # Fallback if raw prompt is used
+            source_match = re.search(r"```python\s*(.*?)\s*```", prompt, re.DOTALL)
+            source_code = source_match.group(1).strip() if source_match else ""
+
+        if is_reflection and source_code:
+            # Error-guided self-healing analysis
+            if "ZeroDivisionError" in prompt or "division by zero" in prompt:
+                # Dynamically locate divisor arguments or expressions
+                func_match = re.search(r"def\s+([a-zA-Z_]\w*)\s*\(([^)]*)\):", source_code)
+                if func_match:
+                    func_name = func_match.group(1)
+                    params = [p.split(":")[0].strip() for p in func_match.group(2).split(",") if p.strip()]
+                    
+                    if len(params) >= 2:
+                        divisor = params[1]
+                        return (
+                            f"def {func_name}({', '.join(params)}):\n"
+                            f"    \"\"\"Refactored {func_name} with guarded division.\"\"\"\n"
+                            f"    if {divisor} == 0:\n"
+                            f"        return 0.0\n"
+                            f"    return {params[0]} / {divisor}\n"
+                        )
+                    elif len(params) == 1:
+                        param = params[0]
+                        return (
+                            f"def {func_name}({param}):\n"
+                            f"    \"\"\"Refactored {func_name} with empty collection guard.\"\"\"\n"
+                            f"    if not {param}:\n"
+                            f"        return 0.0\n"
+                            f"    return sum({param}) / len({param})\n"
+                        )
+
+            elif "IndexError" in prompt:
+                return source_code.replace("return arr[10]", "if len(arr) > 10:\n        return arr[10]\n    return None")
+
+            # Generic fallback reflection
+            return source_code
+
+        # Initial attempt: Return source code with clean type hints and structure
+        if source_code:
+            return source_code
+
+        # Default sample calculation if prompt is empty
+        return (
+            "def calculate_stats(numbers: list[float]) -> dict[str, float]:\n"
+            "    \"\"\"Calculates statistical summary with zero-division safety.\"\"\"\n"
+            "    if not numbers:\n"
+            "        return {\"mean\": 0.0, \"variance\": 0.0, \"count\": 0}\n"
+            "    n = len(numbers)\n"
+            "    mean = sum(numbers) / n\n"
+            "    variance = sum((x - mean) ** 2 for x in numbers) / n\n"
+            "    return {\"mean\": mean, \"variance\": variance, \"count\": n}\n"
+        )
