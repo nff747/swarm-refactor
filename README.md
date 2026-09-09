@@ -1,5 +1,7 @@
 <div align="center">
 
+![SwarmRefactor](assets/banner.jpg)
+
 # 🐝 SwarmRefactor
 ### Autonomous Multi-Agent Actor Model Framework for Iterative Codebase Self-Healing
 
@@ -73,6 +75,56 @@ Standard Large Language Models (LLMs) operate in an open-loop, probabilistic reg
 - **AST Skeletonization**: `ContextCompressor.extract_ast_skeleton()` parses the Python Abstract Syntax Tree (AST) to extract function signatures, type annotations, and class hierarchies while pruning function bodies. This compresses dependency context by **up to 82%**, fitting massive codebases into 8K local context windows.
 - **Unified Diff Focusing**: Intermediate reasoning cycles operate strictly over unified diffs (`difflib`), directing LLM attention solely to the mutant lines.
 - **Episodic Memory**: Successful diagnostic-to-patch pairings are persisted in `EpisodicMemory`, enabling dynamic few-shot retrieval for recurring bug topologies.
+
+---
+
+## 🚀 Quick Start
+
+```bash
+uv pip install swarm-refactor
+```
+
+```python
+from swarm_refactor.orchestrator import SwarmOrchestrator
+
+orchestrator = SwarmOrchestrator(model="deepseek-coder:6.7b")
+result = await orchestrator.refactor_code(source_code="...", test_code="...", objective="Fix bugs")
+print(result.final_code)
+```
+
+---
+
+## 💻 CLI Usage
+
+```bash
+swarm-refactor --file broken_code.py --tests tests/ --model ollama/codellama
+```
+
+---
+
+## 🤖 Supported LLM Backends
+
+| Provider | Description |
+| :--- | :--- |
+| **Ollama** | Local quantized models (e.g., DeepSeek, Qwen) |
+| **vLLM** | High-throughput local model serving |
+| **OpenAI-compatible** | Any API matching OpenAI standards |
+
+---
+
+## 🏃 Example Run
+
+```text
+[INFO] Manager [manager-agent-1] initiating refactoring workflow...
+[INFO] Worker [worker-agent-1] processing task (attempt 1/5)...
+[INFO] Critic [critic-agent-1] executing sandbox verification...
+[INFO] Critic [critic-agent-1] result: FAILED (Exit: 1)
+[WARN] ⚠️ Manager [manager-agent-1] Test failed. Feeding stack trace back to Worker...
+[INFO] Worker [worker-agent-1] processing task (attempt 2/5)...
+[INFO] Critic [critic-agent-1] executing sandbox verification...
+[INFO] Critic [critic-agent-1] result: PASSED (Exit: 0)
+[INFO] 🎉 Manager [manager-agent-1] CONVERGED: Task verified successfully!
+```
 
 ---
 
