@@ -7,6 +7,7 @@
 [![Architecture](https://img.shields.io/badge/Architecture-Actor_Model-FF6B6B?style=for-the-badge)](https://en.wikipedia.org/wiki/Actor_model)
 [![Concurrency](https://img.shields.io/badge/Concurrency-asyncio_Zero--Lock-00B4D8?style=for-the-badge)](https://docs.python.org/3/library/asyncio.html)
 [![Backends](https://img.shields.io/badge/LLM-vLLM_%7C_Ollama_%7C_Local-7209B7?style=for-the-badge)](https://github.com/vllm-project/vllm)
+[![Powered by nff747](https://img.shields.io/badge/Powered%20by-nff747-111111?style=for-the-badge&logo=github&logoColor=white)](https://github.com/nff747)
 [![License](https://img.shields.io/badge/License-Apache_2.0-2EC4B6?style=for-the-badge)](LICENSE)
 
 *An enterprise-grade, asynchronous multi-agent orchestrator utilizing Erlang-style Actor semantics, ephemeral sandboxed runtime execution, and closed-loop constitutional reflection to outperform zero-shot LLM code generation.*
@@ -255,3 +256,18 @@ tests/test_swarm.py::test_swarm_orchestrator_convergence PASSED          [100%]
 ## 🛡️ License
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📜 Open Source & Commercial Use (MIT)
+
+This project is 100% open-source software under the **[MIT License](LICENSE)**.
+
+### 💼 Commercial Use & Free Redistribution
+You are explicitly permitted to use, modify, fork, integrate, package, and sell commercial products or SaaS built using this engine with **one visible attribution requirement**:
+> **Attribution Requirement**: You must include a visible credit to **nff747** in your application (e.g., `Powered by nff747` linking to [https://github.com/nff747](https://github.com/nff747) in your application UI, footer, about modal, or documentation).
+
+```html
+<!-- Example visible footer attribution -->
+<p>Powered by <a href="https://github.com/nff747" target="_blank">nff747</a></p>
+```
