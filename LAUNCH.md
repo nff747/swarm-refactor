@@ -18,3 +18,21 @@ SwarmRefactor implements an Actor-model orchestration framework (inspired by Erl
 Repo: https://github.com/nff747/swarm-refactor
 License: MIT
 ```
+
+---
+
+## 2. Twitter / X Post (Under 280 chars - no subscription needed)
+```text
+LLMs fail on multi-file refactors.
+
+I built SwarmRefactor: Actor-model code self-healing.
+
+- Erlang-style Actor orchestration
+- Local LLMs (Ollama/vLLM)
+- AST security gate + POSIX rlimits
+- Auto test-eval loop (MIT)
+
+https://github.com/nff747/swarm-refactor
+
+#ai #python
+```
