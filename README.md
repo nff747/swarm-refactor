@@ -337,19 +337,7 @@ tests/test_swarm.py::test_swarm_orchestrator_convergence PASSED          [100%]
 
 ---
 
-## 🛡️ License
+## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+Apache License 2.0 © [nff747](https://github.com/nff747)
 
----
-
-## 📜 Open Source & Commercial Use (MIT)
-
-This project is 100% open-source software under the **[MIT License](LICENSE)**.
-
-### 💼 Commercial Use & Free Redistribution
-You are explicitly permitted to use, modify, fork, integrate, package, and sell commercial products or SaaS built using this engine
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
