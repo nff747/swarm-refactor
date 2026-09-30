@@ -6,8 +6,12 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
-    { name = "iKi", email = "180210171+nff747@users.noreply.github.com" }
+    { name = "nff747", email = "nff747@users.noreply.github.com" }
 ]
+
+[project.urls]
+Homepage = "https://github.com/nff747/swarm-refactor"
+Repository = "https://github.com/nff747/swarm-refactor"
 dependencies = [
     "httpx>=0.27.0",
     "pydantic>=2.7.0",
