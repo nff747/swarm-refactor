@@ -6,3 +6,22 @@ __pycache__/
 dist/
 build/
 .DS_Store
+
+# Security & SCA Hygiene Rules
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.cert
+*.pfx
+*.p12
+node_modules/
+out/
+target/
+.next/
+*.tsbuildinfo
+*.log
+*.py[cod]
+venv/
+Thumbs.db
