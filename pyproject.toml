@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Autonomous multi-agent orchestrator utilizing the Actor Model for self-learning, iterative code refactoring and sandboxed test-driven verification."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 authors = [
     { name = "nff747", email = "nff747@users.noreply.github.com" }
 ]
