@@ -195,3 +195,25 @@ async def test_sandbox_security_gate_rejection():
     assert res2.exit_code == -3
     assert "eval()" in res2.stderr
 
+
+@pytest.mark.asyncio
+async def test_priority_mailbox_ordering():
+    from swarm_refactor.actors.mailbox import PriorityMailbox
+    from swarm_refactor.actors.envelope import Envelope
+
+    mailbox = PriorityMailbox()
+    low_prio = Envelope(sender="a", recipient="b", message_type="msg", payload="low", priority=20)
+    high_prio = Envelope(sender="a", recipient="b", message_type="msg", payload="high", priority=1)
+    mid_prio = Envelope(sender="a", recipient="b", message_type="msg", payload="mid", priority=5)
+
+    await mailbox.put(low_prio)
+    await mailbox.put(high_prio)
+    await mailbox.put(mid_prio)
+
+    first = await mailbox.get()
+    second = await mailbox.get()
+    third = await mailbox.get()
+
+    assert first.payload == "high"
+    assert second.payload == "mid"
+    assert third.payload == "low"
