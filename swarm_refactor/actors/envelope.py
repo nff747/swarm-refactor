@@ -15,6 +15,7 @@ class Envelope(BaseModel, Generic[T]):
     message_type: str
     payload: Any
     correlation_id: Optional[str] = None
+    priority: int = Field(default=10, description="Priority level where lower integer denotes higher dispatch priority")
     timestamp: float = Field(default_factory=time.time)
 
     model_config = ConfigDict(frozen=True)
