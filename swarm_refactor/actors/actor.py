@@ -4,8 +4,10 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Optional, Dict, Any, Callable
+from typing import Optional, Dict, Any, Callable, Union
 from .envelope import Envelope
+from .mailbox import PriorityMailbox
+from .circuit_breaker import CircuitBreaker, CircuitBreakerOpenException
 
 logger = logging.getLogger("swarm_refactor.actor")
 
@@ -17,7 +19,7 @@ class ActorState(Enum):
 
 class ActorRef:
     """Lightweight handle for addressing and dispatching messages to an Actor."""
-    def __init__(self, actor_id: str, mailbox: asyncio.Queue):
+    def __init__(self, actor_id: str, mailbox: Union[asyncio.Queue, PriorityMailbox]):
         self.actor_id = actor_id
         self._mailbox = mailbox
 
@@ -37,9 +39,13 @@ class ActorRef:
 class Actor(ABC):
     """Base Actor implementation providing Erlang/Akka-style actor semantics."""
 
-    def __init__(self, actor_id: str):
+    def __init__(self, actor_id: str, failure_threshold: int = 3, recovery_time_sec: float = 5.0):
         self.actor_id = actor_id
-        self.mailbox: asyncio.Queue[Envelope] = asyncio.Queue(maxsize=1000)
+        self.mailbox = PriorityMailbox(maxsize=1000)
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=failure_threshold,
+            recovery_time_sec=recovery_time_sec
+        )
         self.state: ActorState = ActorState.CREATED
         self._loop_task: Optional[asyncio.Task] = None
         self.system: Optional["ActorSystem"] = None
@@ -59,12 +65,21 @@ class Actor(ABC):
         while self.state == ActorState.RUNNING:
             try:
                 envelope = await self.mailbox.get()
+                if not self.circuit_breaker.can_execute():
+                    logger.warning(f"Actor [{self.actor_id}] circuit is OPEN. Rejecting envelope {envelope.id}")
+                    if self.system:
+                        await self.system.dead_letters.put(envelope)
+                    self.mailbox.task_done()
+                    continue
+
                 await self.receive(envelope)
+                self.circuit_breaker.record_success()
                 self.mailbox.task_done()
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 self.failure_count += 1
+                self.circuit_breaker.record_failure()
                 logger.error(f"Actor [{self.actor_id}] faulted during receive: {e}", exc_info=True)
                 self.state = ActorState.FAULTED
                 await self.handle_fault(e)
