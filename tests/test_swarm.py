@@ -217,3 +217,28 @@ async def test_priority_mailbox_ordering():
     assert first.payload == "high"
     assert second.payload == "mid"
     assert third.payload == "low"
+
+def test_circuit_breaker_state_transitions():
+    from swarm_refactor.actors.circuit_breaker import CircuitBreaker, CircuitState
+    import time
+
+    cb = CircuitBreaker(failure_threshold=2, recovery_time_sec=0.1)
+    assert cb.state == CircuitState.CLOSED
+    assert cb.can_execute() is True
+
+    cb.record_failure()
+    assert cb.state == CircuitState.CLOSED
+    assert cb.can_execute() is True
+
+    cb.record_failure()
+    assert cb.state == CircuitState.OPEN
+    assert cb.can_execute() is False
+
+    # Sleep to trigger half-open recovery
+    time.sleep(0.12)
+    assert cb.can_execute() is True
+    assert cb.state == CircuitState.HALF_OPEN
+
+    cb.record_success()
+    assert cb.state == CircuitState.CLOSED
+    assert cb.failure_count == 0
