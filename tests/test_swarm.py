@@ -242,3 +242,37 @@ def test_circuit_breaker_state_transitions():
     cb.record_success()
     assert cb.state == CircuitState.CLOSED
     assert cb.failure_count == 0
+
+class FaultyActor(Actor):
+    """Actor that raises exceptions to verify circuit breaker containment."""
+    def __init__(self, actor_id: str):
+        super().__init__(actor_id, failure_threshold=2, recovery_time_sec=0.2)
+        self.processed = 0
+
+    async def receive(self, envelope: Envelope) -> None:
+        if envelope.payload == "fail":
+            raise RuntimeError("Induced failure")
+        self.processed += 1
+
+@pytest.mark.asyncio
+async def test_actor_circuit_breaker_dead_letter_routing():
+    system = ActorSystem(name="cb-system")
+    actor = FaultyActor("faulty-1")
+    ref = await system.spawn(actor)
+
+    fail_env = Envelope(sender="test", recipient="faulty-1", message_type="msg", payload="fail")
+    await ref.tell(fail_env)
+    await ref.tell(fail_env)
+    await asyncio.sleep(0.1)
+
+    assert actor.circuit_breaker.state.value == "OPEN"
+
+    # Message sent while open should route to dead_letters
+    normal_env = Envelope(sender="test", recipient="faulty-1", message_type="msg", payload="hello")
+    await ref.tell(normal_env)
+    await asyncio.sleep(0.05)
+
+    assert system.dead_letters.qsize() >= 1
+    assert actor.processed == 0
+
+    await system.shutdown()
