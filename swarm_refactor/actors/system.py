@@ -11,10 +11,10 @@ logger = logging.getLogger("swarm_refactor.system")
 class ActorSystem:
     """Manages actor lifecycles, global address resolution, and message delivery."""
 
-    def __init__(self, name: str = "swarm-system"):
+    def __init__(self, name: str = "swarm-system", dead_letters_capacity: int = 10000):
         self.name = name
         self._actors: Dict[str, Actor] = {}
-        self.dead_letters: asyncio.Queue[Envelope] = asyncio.Queue()
+        self.dead_letters: asyncio.Queue[Envelope] = asyncio.Queue(maxsize=dead_letters_capacity)
 
     async def spawn(self, actor: Actor) -> ActorRef:
         """Register and start an actor within the system."""
