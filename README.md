@@ -1,36 +1,3 @@
-# Swarm Refactor 🚀
-
-Welcome to the **swarm-refactor** repository! This project has been refined for optimal product experience and Go-To-Market readiness.
-
-## 🌟 Overview
-This repository contains the core implementation for `swarm-refactor`. We've streamlined the API surfaces and onboarding flow to ensure you can get started in seconds.
-
-## ⚡ Quick Start Guide
-
-Get up and running immediately:
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/nff747/swarm-refactor.git
-
-# 2. Navigate into the directory
-cd swarm-refactor
-
-# 3. Install dependencies (if applicable)
-npm install # or pip install -r requirements.txt or cargo build
-
-# 4. Run the project
-npm start # or python main.py or cargo run
-```
-
-## 📖 Improved Documentation & API
-- **Simplicity**: The API surface has been reviewed to minimize boilerplate.
-- **Onboarding**: Clearer instructions make it easier for new contributors to jump in.
-- **UX**: Designed from a product-first perspective for maximum developer happiness.
-
----
-*Optimized by the Practical Strategist.*
-
 <div align="center">
 
 ![SwarmRefactor](assets/banner.jpg)
@@ -340,4 +307,3 @@ tests/test_swarm.py::test_swarm_orchestrator_convergence PASSED          [100%]
 ## 📄 License
 
 Apache License 2.0 © [nff747](https://github.com/nff747)
-
