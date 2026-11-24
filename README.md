@@ -3,6 +3,8 @@
 ![SwarmRefactor](assets/banner.jpg)
 
 # 🐝 SwarmRefactor
+
+[![Lunar Paradox](https://img.shields.io/badge/Organization-Lunar_Paradox-0a0e1a?style=for-the-badge&logo=probot&logoColor=d7b886)](https://lunarparadox.com)
 ### Autonomous Multi-Agent Actor Model Framework for Iterative Codebase Self-Healing
 
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -307,3 +309,7 @@ tests/test_swarm.py::test_swarm_orchestrator_convergence PASSED          [100%]
 ## 📄 License
 
 Apache License 2.0 © [nff747](https://github.com/nff747)
+
+---
+
+*A component of the [Lunar Paradox](https://lunarparadox.com) applied systems & graphics laboratory. Engineered by nff747.*
